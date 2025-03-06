@@ -10,21 +10,29 @@ class AudioService extends ChangeNotifier {
   bool get isPlaying => _isPlaying;
 
   AudioService() {
+    // Escuchar cambios en el estado del reproductor
     _audioPlayer.playerStateStream.listen((playerState) {
       _isPlaying = playerState.playing;
-      notifyListeners();
+      notifyListeners(); // Notificar cambios en el estado de reproducción
     });
   }
 
   Future<void> playSong(String url, String title) async {
     try {
+      // Actualizar la UI antes de reproducir
+      _currentSong = title;
+      _isPlaying = false; // Aún no está reproduciendo
+      notifyListeners();
+
+      // Configurar y reproducir la canción
       await _audioPlayer.setUrl(url);
       await _audioPlayer.play();
-      _currentSong = title;
+
+      // Actualizar el estado después de que comience a sonar
       _isPlaying = true;
       notifyListeners();
     } catch (e) {
-      print('Error playing song: $e');
+      print('Error al reproducir la canción: $e');
       _currentSong = '';
       _isPlaying = false;
       notifyListeners();
