@@ -57,18 +57,24 @@ class _PlaylistScreenState extends State<PlaylistScreen> {
   void _showQueueOptions(BuildContext context, Map<String, dynamic> song) {
     showModalBottomSheet(
       context: context,
+      isScrollControlled: true,
       builder: (BuildContext context) {
-        return Wrap(
-          children: <Widget>[
-            ListTile(
-              leading: Icon(Icons.playlist_add),
-              title: Text('Add to Queue'),
-              onTap: () {
-                Provider.of<AudioService>(context, listen: false).addToQueue(song);
-                Navigator.pop(context);
-              },
+        return SafeArea(  // Evita que el modal quede debajo de la barra de navegación
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Wrap(
+              children: <Widget>[
+                ListTile(
+                  leading: Icon(Icons.playlist_add),
+                  title: Text('Añadir a la cola'),
+                  onTap: () {
+                    Provider.of<AudioService>(context, listen: false).addToQueue(song);
+                    Navigator.pop(context);
+                  },
+                ),
+              ],
             ),
-          ],
+          ),
         );
       },
     );

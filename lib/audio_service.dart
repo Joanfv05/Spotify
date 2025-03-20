@@ -7,6 +7,7 @@ class AudioService extends ChangeNotifier {
   bool _isPlaying = false;
   bool _isLoopMode = false;
   bool _isSingleLoopMode = false;
+  bool _isShuffleMode = false;
   List<Map<String, dynamic>> _queue = [];
 
   String get currentSong => _currentSong;
@@ -41,6 +42,12 @@ class AudioService extends ChangeNotifier {
       await _audioPlayer.play();
 
       _isPlaying = true;
+
+      // Verificar si la canción ya está en la cola antes de añadirla
+      if (!_queue.any((song) => song['titulo'] == title)) {
+        _queue.add({'ruta': url, 'titulo': title});
+      }
+
       notifyListeners();
     } catch (e) {
       print('Error al reproducir la canción: $e');
@@ -71,21 +78,22 @@ class AudioService extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> playNextSong() async {
-    if (_queue.isNotEmpty) {
-      final nextSong = _queue.removeAt(0);
-      await playSong(nextSong['ruta'], nextSong['titulo']);
-    } else {
-      await stopSong();
-    }
+  void playNextSong() {
+    if (_queue.isEmpty) return;
+
+    int currentIndex = _queue.indexWhere((song) => song['titulo'] == _currentSong);
+    int nextIndex = (currentIndex + 1) % _queue.length;
+
+    playSong(_queue[nextIndex]['ruta'], _queue[nextIndex]['titulo']);
   }
 
-  Future<void> playPreviousSong(List<Map<String, dynamic>> playlist) async {
-    int currentIndex = playlist.indexWhere((song) => song['titulo'] == _currentSong);
-    if (currentIndex != -1) {
-      int previousIndex = (currentIndex - 1 + playlist.length) % playlist.length;
-      await playSong(playlist[previousIndex]['ruta'], playlist[previousIndex]['titulo']);
-    }
+  void playPreviousSong() {
+    if (_queue.isEmpty) return;
+
+    int currentIndex = _queue.indexWhere((song) => song['titulo'] == _currentSong);
+    int previousIndex = (currentIndex - 1 + _queue.length) % _queue.length;
+
+    playSong(_queue[previousIndex]['ruta'], _queue[previousIndex]['titulo']);
   }
 
   Future<void> pauseSong() async {

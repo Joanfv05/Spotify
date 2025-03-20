@@ -16,16 +16,14 @@ class QueueScreen extends StatelessWidget {
             onReorder: (oldIndex, newIndex) {
               audioService.reorderQueue(oldIndex, newIndex);
             },
-            children: audioService.queue.asMap().entries.map((entry) {
-              final index = entry.key;
-              final song = entry.value;
+            children: audioService.queue.map((song) {
               return ListTile(
-                key: Key('$index'),
+                key: Key(song['titulo']), // Usa el título como clave única
                 title: Text(song['titulo']),
                 subtitle: Text(song['artista']),
                 trailing: IconButton(
                   icon: Icon(Icons.remove_circle_outline),
-                  onPressed: () => audioService.removeFromQueue(index),
+                  onPressed: () => audioService.removeFromQueue(audioService.queue.indexOf(song)),
                 ),
               );
             }).toList(),
