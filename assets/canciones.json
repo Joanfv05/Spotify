@@ -1,13 +1,188 @@
 [
   {
+    "id": 1,
     "titulo": "1 QUE TE IGUALE",
     "artista": "Dib",
     "ruta": "/storage/emulated/0/Music/1 QUE TE IGUALE - Dib.mp3"
   },
   {
+    "id": 2,
     "titulo": "Déjame Entrar",
     "artista": "Rauw Alejandro",
     "ruta": "/storage/emulated/0/Music/DEJAME_ENTRAR.mp3"
+  },
+  {
+    "id": 3,
+    "titulo": "Bandida",
+    "artista": "Dib",
+    "ruta": "/storage/emulated/0/Music/Bandida - Dib.mp3"
+  },
+  {
+    "id": 4,
+    "titulo": "¿CÓMO QUERER A CUALQUIERA?",
+    "artista": "Dib",
+    "ruta": "/storage/emulated/0/Music/¿CÓMO QUERER A CUALQUIERA? - Dib.mp3"
+  },
+  {
+    "id": 5,
+    "titulo": "cosas pendientes",
+    "artista": "Dib",
+    "ruta": "/storage/emulated/0/Music/cosas pendientes - Dib.mp3"
+  },
+  {
+    "id": 6,
+    "titulo": "COSETS AL BRAÇ",
+    "artista": "jovedry",
+    "ruta": "/storage/emulated/0/Music/COSETS AL BRAÇ - jovedry.mp3"
+  },
+  {
+    "id": 7,
+    "titulo": "Déjame Entrar",
+    "artista": "Raw Alejandro",
+    "ruta": "/storage/emulated/0/Music/DEJAME_ENTRAR - Raw Alejandro.mp3"
+  },
+  {
+    "id": 8,
+    "titulo": "Demasiadas Mujeres",
+    "artista": "C.Tangana",
+    "ruta": "/storage/emulated/0/Music/Demasiadas Mujeres - C.Tangana.mp3"
+  },
+  {
+    "id": 9,
+    "titulo": "Desenfocao'",
+    "artista": "Rauw Alejandro",
+    "ruta": "/storage/emulated/0/Music/Desenfocao' - Rauw Alejandro.mp3"
+  },
+  {
+    "id": 10,
+    "titulo": "Diabólica",
+    "artista": "Crish Mj, Dei V",
+    "ruta": "/storage/emulated/0/Music/Diabólica - Crish Mj, Dei V.mp3"
+  },
+  {
+    "id": 11,
+    "titulo": "DONDE SEA",
+    "artista": "Dib, Anther",
+    "ruta": "/storage/emulated/0/Music/DONDE SEA - Dib, Anther.mp3"
+  },
+  {
+    "id": 12,
+    "titulo": "FP",
+    "artista": "Arcángel, Raww Alejandro",
+    "ruta": "/storage/emulated/0/Music/FP - Arcángel, Raww Alejandro.mp3"
+  },
+  {
+    "id": 13,
+    "titulo": "Gitana (feat. Bryartz)",
+    "artista": "Pablo Chill-E, Bryartz",
+    "ruta": "/storage/emulated/0/Music/Gitana (feat. Bryartz) - Pablo Chill-E, Bryartz.mp3"
+  },
+  {
+    "id": 14,
+    "titulo": "Give me More",
+    "artista": "Aloboi",
+    "ruta": "/storage/emulated/0/Music/Give me More - Aloboi.mp3"
+  },
+  {
+    "id": 15,
+    "titulo": "Give Me More",
+    "artista": "Aloboi",
+    "ruta": "/storage/emulated/0/Music/Give Me More - Aloboi.mp3"
+  },
+  {
+    "id": 16,
+    "titulo": "Guerrera",
+    "artista": "DELLAFUENTE, C.Tangana",
+    "ruta": "/storage/emulated/0/Music/Guerrera - DELLAFUENTE, C.Tangana.mp3"
+  },
+  {
+    "id": 17,
+    "titulo": "KPOP",
+    "artista": "Travis Scott, Bad Bunny, The Weeknd",
+    "ruta": "/storage/emulated/0/Music/KPOP - Travis Scott, Bad Bunny, The Weeknd.mp3"
+  },
+  {
+    "id": 18,
+    "titulo": "Kyoto",
+    "artista": "Omar Courz, De La Rose",
+    "ruta": "/storage/emulated/0/Music/Kyoto - Omar Courz, De La Rose.mp3"
+  },
+  {
+    "id": 19,
+    "titulo": "MARGIELA",
+    "artista": "Omar Courz",
+    "ruta": "/storage/emulated/0/Music/MARGIELA - Omar Courz.mp3"
+  },
+  {
+    "id": 20,
+    "titulo": "Mentiras",
+    "artista": "Dib, Anther",
+    "ruta": "/storage/emulated/0/Music/Mentiras - Dib, Anther.mp3"
+  },
+  {
+    "id": 21,
+    "titulo": "NO ME BUSQUES MÁS",
+    "artista": "Dib",
+    "ruta": "/storage/emulated/0/Music/NO ME BUSQUES MÁS - Dib.mp3"
+  },
+  {
+    "id": 22,
+    "titulo": "No Sacrifice, No Victory",
+    "artista": "Steve Jabalonsky",
+    "ruta": "/storage/emulated/0/Music/No Sacrifice, No Victory - Steve Jabalonsky.mp3"
+  },
+  {
+    "id": 23,
+    "titulo": "Normal",
+    "artista": "Feid",
+    "ruta": "/storage/emulated/0/Music/Normal - Feid.mp3"
+  },
+  {
+    "id": 24,
+    "titulo": "PARANORMAL",
+    "artista": "Tainy, Alvaro Diaz",
+    "ruta": "/storage/emulated/0/Music/PARANORMAL - Tainy, Alvaro Diaz.mp3"
+  },
+  {
+    "id": 25,
+    "titulo": "POCKET ROCKET",
+    "artista": "Cochise",
+    "ruta": "/storage/emulated/0/Music/POCKET ROCKET - Cochise.mp3"
+  },
+  {
+    "id": 26,
+    "titulo": "SciFi",
+    "artista": "Tainy, Raw Alejandro",
+    "ruta": "/storage/emulated/0/Music/SciFi - Tainy, Raw Alejandro.mp3"
+  },
+  {
+    "id": 27,
+    "titulo": "Tal para cual",
+    "artista": "Samuraï, D3llano",
+    "ruta": "/storage/emulated/0/Music/Tal para cual - Samuraï, D3llano.mp3"
+  },
+  {
+    "id": 28,
+    "titulo": "Tell Em",
+    "artista": "Cochise",
+    "ruta": "/storage/emulated/0/Music/Tell Em - Cochise.mp3"
+  },
+  {
+    "id": 29,
+    "titulo": "TU INICIAL",
+    "artista": "Dib, Anther",
+    "ruta": "/storage/emulated/0/Music/TU INICIAL - Dib, Anther.mp3"
+  },
+  {
+    "id": 30,
+    "titulo": "VOLVER",
+    "artista": "Tainy, Skrillex, Four Tet, Raww Alejandro",
+    "ruta": "/storage/emulated/0/Music/VOLVER - Tainy, Skrillex, Four Tet, Raww Alejandro.mp3"
+  },
+  {
+    "id": 31,
+    "titulo": "Want To Love",
+    "artista": "Aloboi",
+    "ruta": "/storage/emulated/0/Music/Want To Love - Aloboi.mp3"
   }
 ]
-
