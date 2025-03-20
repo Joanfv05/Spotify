@@ -1,14 +1,14 @@
 import 'package:just_audio/just_audio.dart';
 import 'package:flutter/foundation.dart';
+import 'dart:math';
 
 class AudioService extends ChangeNotifier {
   final AudioPlayer _audioPlayer = AudioPlayer();
   String _currentSong = '';
   bool _isPlaying = false;
-  bool _isLoopMode = false;
-  bool _isSingleLoopMode = false;
   bool _isShuffleMode = false;
   List<Map<String, dynamic>> _queue = [];
+  final Random _random = Random();
 
   String get currentSong => _currentSong;
   bool get isPlaying => _isPlaying;
@@ -20,16 +20,20 @@ class AudioService extends ChangeNotifier {
       notifyListeners();
 
       if (playerState.processingState == ProcessingState.completed) {
-        playNextSong();
+        playNextSong(); // Ahora sigue reproduciendo automáticamente
       }
     });
 
-    _audioPlayer.positionStream.listen((position) {
-      if (_isSingleLoopMode && position >= (_audioPlayer.duration ?? Duration.zero)) {
-        _audioPlayer.seek(Duration.zero);
-        _audioPlayer.play();
-      }
-    });
+    _initializeQueue();
+  }
+
+  void _initializeQueue() {
+    if (_isShuffleMode) {
+      _queue.shuffle();
+    }
+    if (_queue.isNotEmpty) {
+      playSong(_queue.first['ruta'], _queue.first['titulo']);
+    }
   }
 
   Future<void> playSong(String url, String title) async {
@@ -42,12 +46,6 @@ class AudioService extends ChangeNotifier {
       await _audioPlayer.play();
 
       _isPlaying = true;
-
-      // Verificar si la canción ya está en la cola antes de añadirla
-      if (!_queue.any((song) => song['titulo'] == title)) {
-        _queue.add({'ruta': url, 'titulo': title});
-      }
-
       notifyListeners();
     } catch (e) {
       print('Error al reproducir la canción: $e');
@@ -57,32 +55,17 @@ class AudioService extends ChangeNotifier {
     }
   }
 
-  void addToQueue(Map<String, dynamic> song) {
-    _queue.add(song);
-    notifyListeners();
-  }
-
-  void removeFromQueue(int index) {
-    if (index >= 0 && index < _queue.length) {
-      _queue.removeAt(index);
-      notifyListeners();
-    }
-  }
-
-  void reorderQueue(int oldIndex, int newIndex) {
-    if (oldIndex < newIndex) {
-      newIndex -= 1;
-    }
-    final item = _queue.removeAt(oldIndex);
-    _queue.insert(newIndex, item);
-    notifyListeners();
-  }
-
   void playNextSong() {
     if (_queue.isEmpty) return;
 
+    int nextIndex;
     int currentIndex = _queue.indexWhere((song) => song['titulo'] == _currentSong);
-    int nextIndex = (currentIndex + 1) % _queue.length;
+
+    if (_isShuffleMode) {
+      nextIndex = _random.nextInt(_queue.length);
+    } else {
+      nextIndex = (currentIndex + 1) % _queue.length; // Reproduce en orden y vuelve al inicio
+    }
 
     playSong(_queue[nextIndex]['ruta'], _queue[nextIndex]['titulo']);
   }
@@ -115,29 +98,32 @@ class AudioService extends ChangeNotifier {
     notifyListeners();
   }
 
-  void toggleLoopMode() {
-    if (!_isLoopMode && !_isSingleLoopMode) {
-      _isLoopMode = true;
-      _audioPlayer.setLoopMode(LoopMode.all);
-    } else if (_isLoopMode) {
-      _isLoopMode = false;
-      _isSingleLoopMode = true;
-      _audioPlayer.setLoopMode(LoopMode.off);
-    } else {
-      _isSingleLoopMode = false;
-      _audioPlayer.setLoopMode(LoopMode.off);
+  void toggleShuffleMode() {
+    _isShuffleMode = !_isShuffleMode;
+    if (_isShuffleMode) {
+      _queue.shuffle();
     }
     notifyListeners();
   }
 
-  void toggleShuffleMode() {
-    if (_audioPlayer.shuffleModeEnabled) {
-      _audioPlayer.setShuffleModeEnabled(false);
-    } else {
-      _queue.shuffle();
-      _audioPlayer.setShuffleModeEnabled(true);
-    }
+  void addToQueue(Map<String, dynamic> song) {
+    _queue.add(song);
     notifyListeners();
+  }
+
+  void removeFromQueue(int index) {
+    if (index >= 0 && index < _queue.length) {
+      _queue.removeAt(index);
+      notifyListeners();
+    }
+  }
+
+  void reorderQueue(int oldIndex, int newIndex) {
+    if (oldIndex != newIndex) {
+      final song = _queue.removeAt(oldIndex);
+      _queue.insert(newIndex, song);
+      notifyListeners();
+    }
   }
 
   @override

@@ -18,12 +18,16 @@ class QueueScreen extends StatelessWidget {
             },
             children: audioService.queue.map((song) {
               return ListTile(
-                key: Key(song['titulo']), // Usa el título como clave única
-                title: Text(song['titulo']),
-                subtitle: Text(song['artista']),
+                key: Key(song['titulo'] ?? 'no-title-${audioService.queue.indexOf(song)}'), // Usa un identificador único
+                title: Text(song['titulo'] ?? 'Unknown Title'),
+                subtitle: Text(song['artista'] ?? 'Unknown Artist'), // Asegúrate de que 'artista' esté disponible
                 trailing: IconButton(
                   icon: Icon(Icons.remove_circle_outline),
-                  onPressed: () => audioService.removeFromQueue(audioService.queue.indexOf(song)),
+                  onPressed: () {
+                    // Elimina la canción de la cola según su índice actual
+                    final songIndex = audioService.queue.indexOf(song);
+                    audioService.removeFromQueue(songIndex);
+                  },
                 ),
               );
             }).toList(),
