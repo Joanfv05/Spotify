@@ -1,5 +1,7 @@
 import 'package:just_audio/just_audio.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/services.dart' show rootBundle;
+import 'dart:convert';
 import 'dart:math';
 
 class AudioService extends ChangeNotifier {
@@ -20,19 +22,28 @@ class AudioService extends ChangeNotifier {
       notifyListeners();
 
       if (playerState.processingState == ProcessingState.completed) {
-        playNextSong(); // Ahora sigue reproduciendo automáticamente
+        playNextSong();
       }
     });
 
     _initializeQueue();
   }
 
-  void _initializeQueue() {
-    if (_isShuffleMode) {
-      _queue.shuffle();
-    }
-    if (_queue.isNotEmpty) {
-      playSong(_queue.first['ruta'], _queue.first['titulo']);
+  Future<void> _initializeQueue() async {
+    try {
+      String jsonString = await rootBundle.loadString('assets/canciones.json');
+      List<dynamic> jsonList = json.decode(jsonString);
+
+      _queue = jsonList.map((item) => item as Map<String, dynamic>).toList();
+
+      if (_isShuffleMode) {
+        _queue.shuffle();
+      }
+      if (_queue.isNotEmpty) {
+        playSong(_queue.first['ruta'], _queue.first['titulo']);
+      }
+    } catch (e) {
+      print('Error loading songs: $e');
     }
   }
 
@@ -42,13 +53,13 @@ class AudioService extends ChangeNotifier {
       _isPlaying = false;
       notifyListeners();
 
-      await _audioPlayer.setUrl(url);
+      await _audioPlayer.setAudioSource(AudioSource.uri(Uri.parse(url)));
       await _audioPlayer.play();
 
       _isPlaying = true;
       notifyListeners();
     } catch (e) {
-      print('Error al reproducir la canción: $e');
+      print('Error playing song: $e');
       _currentSong = '';
       _isPlaying = false;
       notifyListeners();
@@ -58,13 +69,13 @@ class AudioService extends ChangeNotifier {
   void playNextSong() {
     if (_queue.isEmpty) return;
 
-    int nextIndex;
     int currentIndex = _queue.indexWhere((song) => song['titulo'] == _currentSong);
+    int nextIndex;
 
     if (_isShuffleMode) {
       nextIndex = _random.nextInt(_queue.length);
     } else {
-      nextIndex = (currentIndex + 1) % _queue.length; // Reproduce en orden y vuelve al inicio
+      nextIndex = (currentIndex + 1) % _queue.length;
     }
 
     playSong(_queue[nextIndex]['ruta'], _queue[nextIndex]['titulo']);
