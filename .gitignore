@@ -4,7 +4,6 @@
 .pub-cache/
 .pub/
 /build/
-flutter_assets/
 *.iml
 *.ipr
 *.iws
@@ -28,4 +27,10 @@ ios/.generated/
 ios/Flutter/Generated.xcconfig
 ios/Flutter/flutter_export_environment.sh
 ios/Pods/
-ios/Runner.xcworkspace/xcuserdata/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
