@@ -1,0 +1,2 @@
+/home/joan/Escritorio/Spotify/android/app/.cxx/debug/84l1c565/x86_64/CMakeFiles/edit_cache.dir
+/home/joan/Escritorio/Spotify/android/app/.cxx/debug/84l1c565/x86_64/CMakeFiles/rebuild_cache.dir
