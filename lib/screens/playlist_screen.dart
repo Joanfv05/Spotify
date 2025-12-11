@@ -1,101 +1,19 @@
-import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
-import '../audio_service.dart';
+import '../services/audio_service.dart';
 import 'queue_screen.dart';
 
 class PlaylistScreen extends StatefulWidget {
   final String playlistName;
+  final List<Map<String, dynamic>> canciones;
 
-  const PlaylistScreen({Key? key, required this.playlistName}) : super(key: key);
+  const PlaylistScreen({Key? key, required this.playlistName, required this.canciones}) : super(key: key);
 
   @override
   _PlaylistScreenState createState() => _PlaylistScreenState();
 }
 
 class _PlaylistScreenState extends State<PlaylistScreen> {
-  List<Map<String, dynamic>> _canciones = [];
-  bool _isShuffleMode = false;
-  bool _isLoopMode = false;
-  bool _isSingleLoopMode = false;
-
-  @override
-  void initState() {
-    super.initState();
-    _cargarCanciones();
-  }
-
-  Future<void> _cargarCanciones() async {
-    final String response = await rootBundle.loadString('assets/canciones.json');
-    final data = await json.decode(response);
-    setState(() {
-      _canciones = List<Map<String, dynamic>>.from(data);
-    });
-  }
-
-  void _toggleShuffleMode() {
-    setState(() {
-      _isShuffleMode = !_isShuffleMode;
-      _isShuffleMode ? _canciones.shuffle() : _canciones.sort((a, b) => a['id'].compareTo(b['id']));
-    });
-  }
-
-  void _toggleLoopMode() {
-    setState(() {
-      if (!_isLoopMode && !_isSingleLoopMode) {
-        _isLoopMode = true;
-      } else if (_isLoopMode) {
-        _isLoopMode = false;
-        _isSingleLoopMode = true;
-      } else {
-        _isSingleLoopMode = false;
-      }
-    });
-  }
-
-  void _showQueueOptions(BuildContext context, Map<String, dynamic> song) {
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      builder: (BuildContext context) {
-        return SafeArea(  // Evita que el modal quede debajo de la barra de navegación
-          child: Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Wrap(
-              children: <Widget>[
-                ListTile(
-                  leading: Icon(Icons.playlist_add),
-                  title: Text('Añadir a la cola'),
-                  onTap: () {
-                    Provider.of<AudioService>(context, listen: false).addToQueue(song);
-                    Navigator.pop(context);
-                  },
-                ),
-              ],
-            ),
-          ),
-        );
-      },
-    );
-  }
-
-  void _playNextSong(AudioService audioService) {
-    int currentIndex = _canciones.indexWhere((cancion) => cancion['titulo'] == audioService.currentSong);
-    if (currentIndex != -1) {
-      int nextIndex = (currentIndex + 1) % _canciones.length;
-      audioService.playSong(_canciones[nextIndex]['ruta'], _canciones[nextIndex]['titulo']);
-    }
-  }
-
-  void _playPreviousSong(AudioService audioService) {
-    int currentIndex = _canciones.indexWhere((cancion) => cancion['titulo'] == audioService.currentSong);
-    if (currentIndex != -1) {
-      int previousIndex = (currentIndex - 1 + _canciones.length) % _canciones.length;
-      audioService.playSong(_canciones[previousIndex]['ruta'], _canciones[previousIndex]['titulo']);
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     return Consumer<AudioService>(
@@ -106,10 +24,16 @@ class _PlaylistScreenState extends State<PlaylistScreen> {
             backgroundColor: Colors.red[900],
             actions: [
               IconButton(
+                icon: Icon(Icons.shuffle, color: audioService.isShuffleMode ? Colors.white : Colors.grey[300]),
+                onPressed: () => audioService.toggleShuffleMode(),
+              ),
+              IconButton(
+                icon: Icon(Icons.repeat, color: audioService.isRepeatMode ? Colors.white : Colors.grey[300]),
+                onPressed: () => audioService.toggleRepeatMode(),
+              ),
+              IconButton(
                 icon: Icon(Icons.queue_music),
-                onPressed: () {
-                  Navigator.push(context, MaterialPageRoute(builder: (context) => QueueScreen()));
-                },
+                onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (context) => QueueScreen())),
               ),
             ],
           ),
@@ -119,89 +43,174 @@ class _PlaylistScreenState extends State<PlaylistScreen> {
                 Expanded(
                   child: Container(
                     color: Colors.black,
-                    child: ListView.builder(
-                      itemCount: _canciones.length,
+                    child: widget.canciones.isEmpty
+                        ? Center(
+                        child: Text('No hay canciones',
+                            style: TextStyle(color: Colors.grey[500], fontSize: 18))
+                    )
+                        : ListView.builder(
+                      itemCount: widget.canciones.length,
                       itemBuilder: (context, index) {
-                        final cancion = _canciones[index];
+                        final cancion = widget.canciones[index];
+                        final isCurrent = audioService.isCurrentSong(cancion);
                         return ListTile(
-                          leading: Icon(Icons.music_note, color: Colors.red),
-                          title: Text(cancion['titulo'], style: TextStyle(color: Colors.white)),
-                          subtitle: Text(cancion['artista'], style: TextStyle(color: Colors.red[300])),
+                          leading: ClipRRect(
+                            borderRadius: BorderRadius.circular(8),
+                            child: Image.network(
+                              cancion['imagen']?.toString() ?? '',
+                              width: 50,
+                              height: 50,
+                              fit: BoxFit.cover,
+                              errorBuilder: (context, error, stackTrace) {
+                                return Container(
+                                  width: 50,
+                                  height: 50,
+                                  color: Colors.grey[800],
+                                  child: Icon(Icons.music_note, color: Colors.grey[600]),
+                                );
+                              },
+                            ),
+                          ),
+                          title: Text(
+                            cancion['titulo']?.toString() ?? 'Sin título',
+                            style: TextStyle(
+                              color: isCurrent ? Colors.red : Colors.white,
+                              fontWeight: isCurrent ? FontWeight.bold : FontWeight.normal,
+                            ),
+                          ),
+                          subtitle: Text(
+                            cancion['artista']?.toString() ?? 'Desconocido',
+                            style: TextStyle(
+                              color: isCurrent ? Colors.red[200] : Colors.grey[400],
+                            ),
+                          ),
                           trailing: IconButton(
                             icon: Icon(Icons.more_vert, color: Colors.white),
-                            onPressed: () => _showQueueOptions(context, cancion),
+                            onPressed: () => _showSongOptions(context, cancion, audioService),
                           ),
-                          onTap: () {
-                            audioService.playSong(cancion['ruta'], cancion['titulo']);
-                          },
+                          onTap: () => audioService.playSongFromMap(cancion),
                         );
                       },
                     ),
                   ),
                 ),
-                Container(
-                  color: Colors.red[900],
-                  padding: EdgeInsets.all(8),
-                  child: Column(
-                    children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                        children: [
-                          IconButton(
-                            icon: Icon(_isShuffleMode ? Icons.shuffle : Icons.shuffle_on_outlined, color: Colors.white),
-                            onPressed: _toggleShuffleMode,
-                          ),
-                          IconButton(
-                            icon: Icon(
-                              _isLoopMode ? Icons.repeat : (_isSingleLoopMode ? Icons.repeat_one : Icons.repeat_outlined),
-                              color: Colors.white,
+                if (audioService.currentSong != null)
+                  Container(
+                    color: Colors.red[900],
+                    padding: EdgeInsets.all(8),
+                    child: Column(
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          children: [
+                            IconButton(
+                              icon: Icon(Icons.skip_previous, color: Colors.white),
+                              onPressed: audioService.hasPreviousSong ? () => audioService.playPreviousSong() : null,
                             ),
-                            onPressed: _toggleLoopMode,
-                          ),
-                          IconButton(
-                            icon: Icon(Icons.skip_previous, color: Colors.white),
-                            onPressed: () => _playPreviousSong(audioService),
-                          ),
-                          IconButton(
-                            icon: Icon(
-                              audioService.isPlaying ? Icons.pause : Icons.play_arrow,
-                              color: Colors.white,
-                              size: 32,
+                            IconButton(
+                              icon: Icon(
+                                audioService.isPlaying ? Icons.pause : Icons.play_arrow,
+                                color: Colors.white,
+                                size: 32,
+                              ),
+                              onPressed: () {
+                                if (audioService.isPlaying) {
+                                  audioService.pauseSong();
+                                } else if (audioService.currentSong != null) {
+                                  audioService.resumeSong();
+                                } else if (widget.canciones.isNotEmpty) {
+                                  audioService.playSongFromMap(widget.canciones[0]);
+                                }
+                              },
                             ),
-                            onPressed: () {
-                              audioService.isPlaying ? audioService.pauseSong() : audioService.resumeSong();
-                            },
-                          ),
-                          IconButton(
-                            icon: Icon(Icons.skip_next, color: Colors.white),
-                            onPressed: () => _playNextSong(audioService),
-                          ),
-                        ],
-                      ),
-                      Row(
-                        children: [
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  audioService.currentSong.isNotEmpty ? audioService.currentSong : 'No hay canción seleccionada',
-                                  style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
-                                  overflow: TextOverflow.ellipsis,
-                                ),
-                                Text(
-                                  audioService.currentSong.isNotEmpty
-                                      ? _canciones.firstWhere((cancion) => cancion['titulo'] == audioService.currentSong, orElse: () => {'artista': 'Desconocido'})['artista']
-                                      : '',
-                                  style: TextStyle(color: Colors.white70),
-                                ),
-                              ],
+                            IconButton(
+                              icon: Icon(Icons.skip_next, color: Colors.white),
+                              onPressed: audioService.hasNextSong ? () => audioService.playNextSong() : null,
                             ),
-                          ),
-                        ],
-                      ),
-                    ],
+                          ],
+                        ),
+                        Row(
+                          children: [
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    audioService.currentSongTitle,
+                                    style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                  Text(
+                                    audioService.currentArtist,
+                                    style: TextStyle(color: Colors.white70),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
                   ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  void _showSongOptions(BuildContext context, Map<String, dynamic> song, AudioService audioService) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.grey[900],
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (BuildContext context) {
+        return SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                ListTile(
+                  leading: Icon(Icons.play_arrow, color: Colors.white),
+                  title: Text('Reproducir ahora', style: TextStyle(color: Colors.white)),
+                  onTap: () {
+                    Navigator.pop(context);
+                    audioService.playSongFromMap(song);
+                  },
+                ),
+                ListTile(
+                  leading: Icon(Icons.playlist_add, color: Colors.white),
+                  title: Text('Añadir a la cola', style: TextStyle(color: Colors.white)),
+                  onTap: () {
+                    Navigator.pop(context);
+                    audioService.addToQueue(song);
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        backgroundColor: Colors.red,
+                        content: Text('Añadido a la cola'),
+                        duration: Duration(seconds: 1),
+                      ),
+                    );
+                  },
+                ),
+                ListTile(
+                  leading: Icon(Icons.queue_music, color: Colors.white),
+                  title: Text('Reproducir siguiente', style: TextStyle(color: Colors.white)),
+                  onTap: () {
+                    Navigator.pop(context);
+                    audioService.insertNextInQueue(song);
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        backgroundColor: Colors.red,
+                        content: Text('Añadido como siguiente'),
+                        duration: Duration(seconds: 1),
+                      ),
+                    );
+                  },
                 ),
               ],
             ),
